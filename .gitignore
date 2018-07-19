@@ -1,0 +1,4 @@
+IAR/settings/
+IAR/Debug/
+IAR/*.dep
+IAR/*.ewt
