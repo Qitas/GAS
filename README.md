@@ -1,6 +1,16 @@
 # STM8工程文件
 
-- 使用dev子模块需要切换到stm8分支
-- 使用connect子模块需要切换到stm8分支
+[![sites](docs/Q.png)](http://www.mcuyun.com)
 
-[![sites](IAR/qitas.png)](http://qitas.cn)
+## 描述
+
+STM8是ST特有的8位单片机，同STM32有类似的分类，可用于简单的边缘节点进行数据采集
+
+## 组成
+
+
+
+## 说明
+
+
+[![sites](docs/qitas.png)](http://www.qitas.cn)
