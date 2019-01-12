@@ -1,7 +1,7 @@
 #ifndef __i2c_H
 #define __i2c_H
 
-#include "Yuenjee.h"
+#include "qitas.h"
 
 
 

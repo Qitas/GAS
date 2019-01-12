@@ -1,7 +1,7 @@
 #ifndef __SI7021_H__
 #define __SI7021_H__
 
-#include "Yuenjee.h"
+#include "qitas.h"
 
 #define SI7021_Addr 		0x80
 #define	HUMI_HOLD_MASTER	0xE5

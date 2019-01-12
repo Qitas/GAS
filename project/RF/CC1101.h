@@ -2,7 +2,7 @@
 #ifndef CC1101_H
 #define CC1101_H
 
-#include "Yuenjee.h"
+#include "qitas.h"
 
 
 extern uint8_t TxBuf[61];
