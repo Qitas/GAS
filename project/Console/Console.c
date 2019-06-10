@@ -1,11 +1,11 @@
 
 /*******************************************************************************
-                      QITAS Wirless Sensor For STM8L151
+                      Qitas Wirless Sensor For STM8L151
 *******************************************************************************/
 #define  VERSION           3
-#define  SERIAL         0xB2
+#define  SERIAL         0xAB
 
-char *DAY="2017_5_13_TQ";
+char *DAY="2017_6_12_TQ";
 
 /*******************************************************************************
 * INCLUDE
@@ -18,95 +18,9 @@ char *DAY="2017_5_13_TQ";
 uint8_t TxBuf[61]={0};
 uint8_t RxBuf[61]={0};
 u8   FLAG_MODE;
-u8   FLAG_TIME=0;
+u8   FLAG_TIME;
 u8   FLAG_RSSI;
 u8   FLAG_CHEC;
-
-/*******************************************************************************
-* Function Name  :Power_ON
-*******************************************************************************/
-void RCC_LSI(void)
-{
-    CLK_LSICmd (ENABLE);   
-    CLK_SYSCLKSourceConfig(CLK_SYSCLKSource_LSI);
-    while(CLK_GetFlagStatus(CLK_FLAG_LSIRDY)==RESET);
-    CLK_SYSCLKSourceSwitchCmd (ENABLE);
-    if(CLK_GetSYSCLKSource()==CLK_SYSCLKSource_LSI)
-     {	
-	 CLK_SYSCLKDivConfig(CLK_SYSCLKDiv_16);	
-     } 
-}
-/*******************************************************************************
-* Function Name  :Power_ON
-*******************************************************************************/
-void RCC_HSI(void)
-{ 
-        CLK_HSICmd(ENABLE);
-	CLK_SYSCLKSourceConfig(CLK_SYSCLKSource_HSI);
-        while(CLK_GetFlagStatus(CLK_FLAG_HSIRDY)==RESET);
-        CLK_SYSCLKSourceSwitchCmd (ENABLE);
-	Delay_ms(1) ;
-        if(CLK_GetSYSCLKSource()==CLK_SYSCLKSource_HSI)
-       {        
-	  CLK_SYSCLKDivConfig(CLK_SYSCLKDiv_1); 
-       }
-}
-/*******************************************************************************
-* Function Name  :RTC_Config
-* Description    :
-*******************************************************************************/
-void RTC_Config(uint16_t time)
-{   
- 
-      RTC_DeInit();
-      CLK_PeripheralClockConfig(CLK_Peripheral_RTC, ENABLE);   
-      CLK_RTCClockConfig(CLK_RTCCLKSource_LSI, CLK_RTCCLKDiv_64); 
-      RTC_WakeUpClockConfig(RTC_WakeUpClock_RTCCLK_Div16); 
-      RTC_ITConfig(RTC_IT_WUT, ENABLE);
-      RTC_SetWakeUpCounter(time);
-      RTC_ClearITPendingBit(RTC_IT_WUT);     
-}
-
-void RTC_GO(void)
-{ 
-     RTC_WakeUpCmd(ENABLE); 
-}
-/*******************************************************************************
-****入口参数：无
-****出口参数：无
-****函数备注：RTC初始化函数
-****版权信息：蓝旗嵌入式系统
-*******************************************************************************/
-void sleep(uint16_t time)
-{  
-        u8 cnt;
-	enableInterrupts();
-        GPIO_Init(GPIOA, GPIO_Pin_All, GPIO_Mode_Out_PP_Low_Slow);
-    	GPIO_Init(GPIOB, GPIO_Pin_All, GPIO_Mode_Out_PP_High_Slow);
-    	GPIO_Init(GPIOC, GPIO_Pin_All, GPIO_Mode_Out_PP_Low_Slow);
-    	GPIO_Init(GPIOD, GPIO_Pin_All, GPIO_Mode_Out_PP_Low_Slow);	
-	PWR_FastWakeUpCmd(ENABLE);
-	PWR_UltraLowPowerCmd(ENABLE);       
-	RTC_ITConfig(RTC_IT_WUT, ENABLE);
-	RTC_WakeUpCmd(ENABLE);		
-	RTC_Config(time);
-	FLAG_TIME=0;
-	RCC_LSI();
-	RTC_GO();
-	halt();
-	if(FLAG_TIME==0) wfi();
-	disableInterrupts();
-	RTC_WakeUpCmd(DISABLE); 
-}
-/*******************************************************************************
-* Function Name  :RTC
-*******************************************************************************/
-#pragma vector=6
-__interrupt void RTC_IRQHandler(void)
-{ 
-	RTC_ClearITPendingBit(RTC_IT_WUT); 
-	FLAG_TIME++;
-}
 /*******************************************************************************
 * Function Name  : Delay
 *******************************************************************************/
@@ -123,55 +37,25 @@ void Delay_us(uint16_t i)
 { 
 	while(i--);
 }
-/*******************************************************************************
-* Function Name  : USART1
-* Description    : 
-*******************************************************************************/
-u8 USART_BUFF[10]={0};
-u8 Point=0;
-u8 GetGas=1;
-void USART1_SendStr(u8 *Str,u8 len) 
-{
-        while(len--)
-        {
-            USART_SendData8(USART1,*Str);   
-            while(!USART_GetFlagStatus (USART1,USART_FLAG_TXE));
-            Str++;
-        }
-}
-
-INTERRUPT_HANDLER(USART1_RX_TIM5_CC_IRQHandler,28)
-{   
-    USART_ClearITPendingBit (USART1,USART_IT_RXNE);  
-    USART_BUFF[Point]=USART_ReceiveData8(USART1);
-    Point++;
-    if(USART_BUFF[0]==0XFF && USART_BUFF[1]==0X86 && USART_BUFF[8]!=0) GetGas=0;
-    if(Point>8) Point=0;
-}
-
-void USART1_Init(void) 
-{
-    CLK_PeripheralClockConfig (CLK_Peripheral_USART1,ENABLE);
-    USART_Init(USART1,9600,USART_WordLength_8b,USART_StopBits_1,USART_Parity_No,USART_Mode_Tx|USART_Mode_Rx);
-    USART_ITConfig (USART1,USART_IT_RXNE,ENABLE);
-    USART_Cmd (USART1,ENABLE);
-}
-
-void USART1_OFF(void) 
-{
-//    USART_ITConfig (USART1,USART_IT_RXNE,DISABLE);
-//    USART_Cmd (USART1,DISABLE);
-}
-
-
-
 
 /*******************************************************************************
 * Function Name  :Power_ON
 *******************************************************************************/
 void HAL_INIT(void)
-{
-  
+{ 
+	CLK->ICKCR |= 0x01;
+	while( CLK->ICKCR & 0x02 == 0) 
+	{
+	    FLAG_TIME++; 
+	    if(FLAG_TIME>100) 
+	    {
+		  SYS_Status|=0x80;		  
+		  break;
+	    }
+	}
+	CLK->CKDIVR = 0;
+	if(FLAG_TIME!=M[4])  EEPROM_B(M_ADDR+4,FLAG_TIME);
+	
 	GPIOA->CR2=0X20;
 	GPIOA->CR1=0XFF;
 	GPIOA->DDR=0XDF;
@@ -181,11 +65,11 @@ void HAL_INIT(void)
 	GPIOB->CR1=0XFF;
 	GPIOB->DDR=0X7F;
 	GPIOB->ODR=0x1C;
-
-	GPIOC->CR2=0X08;
-	GPIOC->CR1=0XFB;
-	GPIOC->DDR=0XFB;
-	GPIOC->ODR=0x0B;
+	
+	GPIOC->CR2=0X00;
+	GPIOC->CR1=0XFF;
+	GPIOC->DDR=0XFF;
+	GPIOC->ODR=0x03;
 	
 	GPIOD->CR2=0X10;
 	GPIOD->CR1=0XEF;
@@ -203,7 +87,6 @@ void HAL_INIT(void)
 		 
 	CC1101_Init();
 	EXTI->CR2 =  0xF1;
-	USART1_Init();
 	enableInterrupts();
 }
 
@@ -211,41 +94,15 @@ void HAL_INIT(void)
 * Function Name  :Power_ON
 *******************************************************************************/
 int Power_ON(void)
-{
-        u8 cnt;
-	if(MODE[0]==WORK_MODE) 
-	{    
-	      RCC_HSI();
-	       for(cnt=0;cnt<10;cnt++)  USART_BUFF[cnt]=0;
-	       USART_BUFF[0]=0XFF;
-	       USART_BUFF[1]=0X01;
-	       USART_BUFF[2]=0X78; 
-	       USART_BUFF[2]=0X04; 
-	       USART_BUFF[8]=0X83;
-	       USART1_SendStr(USART_BUFF,9);
-	       
-	       
-	      sleep(900);
-	      RCC_HSI();
-	      HAL_INIT();
-	      for(cnt=0;cnt<6;cnt++)  {LED_PORT->ODR ^= Blue_LED_Pin; Delay_ms(100) ;}
-	}
-	else 
-	{
-	  	RCC_HSI();
-	   	HAL_INIT();	  
-	}
-       
-}
-/*******************************************************************************
-* Function Name  :Power_ON
-*******************************************************************************/
-int READY(void)
-{   
-#ifdef SERIAL		  
-  if(SSN[1]!=SERIAL && SSN[9]!=SERIAL)  {  SN_code(1); FLUSH(2);}
-#endif
+{ 
+  
+        HAL_INIT(); 
 	
+#ifdef SERIAL	
+	//SN_code(1);   
+	//EEPROM_B(MODE_ADDR,WORK_MODE); 
+	if(SSN[1]!=SERIAL && SSN[9]!=SERIAL)   FLUSH(1); 
+#endif
  	if(MODE[0]==PAIR_MODE || MODE[0]==WORK_MODE || MODE[0]==CHCK_MODE)  FLAG_MODE=MODE[0];
         else  FLAG_MODE=MODE[1];
 	if(0!=FLAG_MODE) 
@@ -266,7 +123,6 @@ int READY(void)
 		  FLAG_TIME=MODE[2];
 		  if(FLAG_TIME==0xFF) FLAG_TIME=5;
 		  EEPROM_B(MODE_ADDR+2,FLAG_TIME+1);
-		  GetGas=1;
 		  return  BACK_SUCCESS;
 	      }	     
 	      for(FLAG_TIME=100;FLAG_TIME>0;FLAG_TIME--) { LED_PORT->ODR ^= 0x04;Delay_ms(80);}
@@ -274,7 +130,6 @@ int READY(void)
 	Power_OFF();	
         return  BACK_ERROR;
 }
-
 
 /*******************************************************************************
 * Function Name  :Power_OFF
@@ -307,6 +162,7 @@ void SN_code(u8 sn)
 	if(SSN[0]!=0 && sn==0)  {TxBuf[0]=SSN[0];TxBuf[8]=SSN[8];}
 	else  { TxBuf[0]=sn; TxBuf[8]=sn;}
 	TxBuf[16]=SSN[16]+1;
+	//TxBuf[16]=0;
 	FLASH_W(SSN_ADDR,TxBuf,17);	
 }	
 /*******************************************************************************
@@ -316,10 +172,10 @@ void FLUSH(u8 SN)
 {
 	LED_PORT->ODR ^= 0x0c;
 	FLASH_Flush(DATA_HEAD,0);
-	Delay_ms(10);
 	LED_PORT->ODR ^= 0x0c;
-	EEPROM_Flush(MODE_ADDR,0);
-	Delay_ms(10);
+	SN_code(SN);
+	LED_PORT->ODR ^= 0x0c;
+	EEPROM_Flush(MODE_ADDR,0);		
 }
 #endif
 
@@ -365,7 +221,6 @@ INTERRUPT_HANDLER(EXTI5_IRQHandler,13)
  
 void Work(void)
 {
-
       if(FLAG_MODE==PAIR_MODE)
       {		
 	    LED_PORT->ODR &=0xFB;
@@ -410,7 +265,8 @@ void Work(void)
 	   RF_Send(0x22);	   
 	   for(FLAG_TIME=100;FLAG_TIME>0;FLAG_TIME--) { LED_PORT->ODR ^= 0x0C;Delay_ms(100);}	
 	   //if(PAIR_MODE == MODE[0] && MODE[2]<2)  Reset();
-      }
+      }   
+     Power_OFF();
 }
 
 
@@ -456,6 +312,29 @@ void Data_Deal(void)
 	
 	if(MODE[4]!=SYS_Status && 0!=SYS_Status)  EEPROM_B(MODE_ADDR+4,SYS_Status);
 }
+/*******************************************************************************
+* Function Name  :RTC_Config
+* Description    :
+*******************************************************************************/
+void RTC_Config(uint16_t time)
+{      
+      RTC_DeInit();
+      CLK_PeripheralClockConfig(CLK_Peripheral_RTC, ENABLE);     
+      CLK_RTCClockConfig(CLK_RTCCLKSource_HSI, CLK_RTCCLKDiv_64); 
+      RTC_WakeUpClockConfig(RTC_WakeUpClock_RTCCLK_Div16); 		
+      RTC_ITConfig(RTC_IT_WUT, ENABLE);
+      RTC_SetWakeUpCounter(time);
+      RTC_WakeUpCmd(ENABLE);
+}
+/*******************************************************************************
+* Function Name  :RTC
+*******************************************************************************/
+#pragma vector=6
+__interrupt void RTC_IRQHandler(void)
+{ 
+	FLAG_TIME++;
+	RTC_ClearITPendingBit(RTC_IT_WUT); 
+}
 
 /*******************************************************************************
 * Function Name  : Get_TLV
@@ -467,6 +346,7 @@ int Get_TLV(void)
 	DATA_TLV_S* nextTlv;
 	u8 check;
 	u8 cnt;
+	u16 light;
 	s16 value;
 	memset(TxBuf,0,sizeof(TxBuf));	
 	firstTlv = getFirstTlv(TxBuf+1);
@@ -541,42 +421,35 @@ int Get_TLV(void)
 		if(MODE[8]>=result_power) check=(u8)((MODE[9]+result_power)/2);		
 		else check=result_power;
 		nextTlv->value[0] = check;		
-	        //Delay_ms(20);
+
+
+		//Delay_ms(20);	
+	        Delay_ms(20);
 		Convert_Temp(); 
 		nextTlv = getNextTlv(nextTlv);
 		nextTlv->type = 5;
 		nextTlv->len = 2; 
+		//value = Convert_BH1750();
 		value = (s16)(result_temp * 100);
 		value = ((value >> 8) & 0xff) | ((value << 8) &0xFF00);
-		*(s16*)nextTlv->value = value;	
-		//Delay_ms(20);	
-		
+		*(u16*)nextTlv->value = value;	
+		Delay_ms(20);	
+				
 		Convert_Humi(); 
 		nextTlv = getNextTlv(nextTlv);
 		nextTlv->type = 6;
 		nextTlv->len = 2;	
 		value = (s16)(result_humi * 100);
 		value = ((value >> 8) & 0xff) | ((value << 8) &0xFF00);
-		*(s16*)nextTlv->value = value;	
+		*(s16*)nextTlv->value = value;
 		
-		check=0;
-		do{
-		     for(cnt=0;cnt<10;cnt++)  USART_BUFF[cnt]=0;
-		     USART_BUFF[0]=0XFF;
-		     USART_BUFF[1]=0X01;
-		     USART_BUFF[2]=0X86; 
-		     USART_BUFF[8]=0X79;
-		     USART1_SendStr(USART_BUFF,9);
-		     for(cnt=0;cnt<10;cnt++)  USART_BUFF[cnt]=0;
-		     while(GetGas && cnt--) Delay_ms(10) ;
-		     check++;
-		  } while(check<5 && GetGas);
-		  nextTlv = getNextTlv(nextTlv);
-		  nextTlv->type = 11;
-		  nextTlv->len = 2;	
-		  nextTlv->value[0] = USART_BUFF[2];
-		  nextTlv->value[1] = USART_BUFF[3];	
-				
+		nextTlv = getNextTlv(nextTlv);
+		nextTlv->type = 9;
+		nextTlv->len = 2; 
+		light = Convert_BH1750();
+		light =((light >> 8) & 0xff) | ((light << 8) &0xFF00);
+		*(u16*)nextTlv->value = light;		
+		
 		if(SYS_Status!= 0)
 	  	{
 		      STORE_STAT();
@@ -926,6 +799,8 @@ u8 FLASH_Flush(u16 head,u8 val)
 	 }
 	return FError;
 }
+
+
 
 /*******************************************************************************
 * Function Name  :RESET

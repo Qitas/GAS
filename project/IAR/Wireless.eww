@@ -2,7 +2,7 @@
 
 <workspace>
   <project>
-    <path>$WS_DIR$\Wireless_sensor.ewp</path>
+    <path>$WS_DIR$\Wireless.ewp</path>
   </project>
   <batchBuild/>
 </workspace>

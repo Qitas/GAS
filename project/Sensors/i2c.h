@@ -1,8 +1,7 @@
 #ifndef __i2c_H
 #define __i2c_H
 
-#include "qitas.h"
-
+#include "Qitas.h"
 
 
 void i2c_Port_Init(void);    //初始化IIC的IO口				 

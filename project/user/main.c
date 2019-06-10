@@ -8,8 +8,6 @@
 *******************************************************************************/
 int main(void)
 {	
-     Power_ON();
-     if(BACK_SUCCESS==READY())  Work();     
-     Power_OFF();
-     Reset();
+    if(BACK_SUCCESS==Power_ON())  Work(); 
+    Reset();
 }

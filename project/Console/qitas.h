@@ -1,9 +1,9 @@
 
 /*******************************************************************************
-            QITAS wirless sensor for STM8
+            YuenJee wirless sensor for STM8
 *******************************************************************************/
-#ifndef QITAS_H__
-#define QITAS_H__
+#ifndef YUENJEE_H__
+#define YUENJEE_H__
 
 #include "stm8l15x.h"
 
@@ -78,7 +78,7 @@ __root __no_init volatile u8 	EE_TX[256]  	   	@ 0x1300;
 #define 	MISO_Pin      GPIO_Pin_7 
 #define 	MOSI_Pin      GPIO_Pin_6 
 #define 	SCLK_Pin      GPIO_Pin_5 
-#define 	CS_Pin        GPIO_Pin_4  
+#define 	CS_Pin        GPIO_Pin_2  
 
 #define 	GDO_PORT      GPIOD
 #define 	GDO0_Pin      GPIO_Pin_4 
@@ -87,12 +87,12 @@ __root __no_init volatile u8 	EE_TX[256]  	   	@ 0x1300;
 #define		SCL_Pin 	GPIO_Pin_1
 #define		SDA_Pin   	GPIO_Pin_0
 
-#define 	KEY_PORT   	GPIOA
-#define 	KEY_Pin    	GPIO_Pin_5  	 
+#define 	KEY_PORT   	GPIOB
+#define 	KEY_Pin    	GPIO_Pin_4  	 
  
-#define 	LED_PORT   		GPIOB
-#define 	Blue_LED_Pin       GPIO_Pin_2	 	
-#define 	Green_LED_Pin      GPIO_Pin_3 	 	
+#define 	LED_PORT   		GPIOA
+#define 	Blue_LED_Pin       GPIO_Pin_6	 	
+#define 	Green_LED_Pin      GPIO_Pin_6 	 	
 
 #define 	POWER_PORT   	        GPIOD
 #define 	POWER_Pin          GPIO_Pin_5 

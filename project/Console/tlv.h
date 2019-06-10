@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include "string.h"
-#include "qitas.h"
+#include "Qitas.h"
 
 
 

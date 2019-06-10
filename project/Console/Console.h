@@ -3,6 +3,7 @@
 
 //#include "stm8l15x.h"
 #include "CC1101.h"
+#include "BH1750.h"
 
 extern float	result_temp;
 extern float 	result_humi;
@@ -10,13 +11,10 @@ extern u8  	result_power;
 extern u8 	SYS_Status;
 
 void USART1_Init(void) ;
-void USART1_OFF(void) ;
-void USART1_SendStr(u8 *Str,u8 len) ;
+void USART1_SendStr(u8 *Str);
 
 int Power_ON(void);
-int READY(void);
 void Power_OFF(void);
-
 void Reset(void);
 void Work(void);
 u8 Convert_Power(u8 bat);
